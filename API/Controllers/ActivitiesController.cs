@@ -1,4 +1,8 @@
-using System.Diagnostics;
+using System.Reflection.Metadata.Ecma335;
+using Application.Activities.Commands;
+using Application.Activities.Quires;
+using Domain;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,24 +12,31 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ActivitiesController(AppDbContext context) : BaseApiContoller
+    public class ActivitiesController : BaseApiContoller
     {
         [HttpGet]
         public async Task<ActionResult<List<Activity>>> GetActivities()
         {
-            var activities = await context.Activities.ToListAsync();
-            return Ok(activities);
+            return await Mediator.Send(new GetActivityList.Query());
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Activity>> GetActivity(string id)
         {
-            var activity = await context.Activities.FindAsync(id);
-            if (activity == null) return NotFound();
-            return Ok(activity);
+            return await Mediator.Send(new GetActivityDetails.Query { Id = id });
         }
 
-        
+        [HttpPost]
+        public async Task<ActionResult<string>> CreateActivity(Activity activity)
+        {
+            return await Mediator.Send(new CreateActivity.Command { Activity = activity });
+        }
+        [HttpPut]
+        public async Task<ActionResult> EditActivity(Activity activity)
+        {
 
+            await Mediator.Send(new EditActivity.Command { Activity = activity });
+             return NoContent();
+        }
     }
 }

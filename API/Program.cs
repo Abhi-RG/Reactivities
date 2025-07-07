@@ -1,3 +1,4 @@
+using Application.Activities.Quires;
 using Microsoft.EntityFrameworkCore;
 using Persistance;
 
@@ -9,7 +10,7 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddCors();
-
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetActivityList.Handler>());
 var app = builder.Build();
  app.UseCors(policy =>
     policy.AllowAnyHeader()
